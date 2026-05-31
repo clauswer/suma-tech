@@ -97,6 +97,7 @@ public class SolrSearcher {
      *
      * @param queryString Suchanfrage
      */
+    @SuppressWarnings("unused")
     private void runQueryOnMultipleFields(String queryString) {
         SolrQuery query = new SolrQuery();
 

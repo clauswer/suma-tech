@@ -94,6 +94,7 @@ public class SolrIndexer {
 
         // TODO Abbildung der Daten im übergebenen GutenbergDoc auf die Indexfelder vervollständigen
 
+        @SuppressWarnings("unused")
         String fulltext = getFulltext(gutenbergDoc.getDocId());
         // TODO Volltext indexieren (in den Indexfeldern fulltext und fulltext_stemmed ablegen)
 
@@ -127,6 +128,7 @@ public class SolrIndexer {
      *
      * @param gutenbergDoc das zu indexierende Dokument
      */
+    @SuppressWarnings("unused")
     private void indexAndCommitOneDocument(GutenbergDoc gutenbergDoc) {
         SolrInputDocument document = buildSolrDoc(gutenbergDoc);
 
@@ -149,6 +151,7 @@ public class SolrIndexer {
      * Parst nacheinander die RDF/XML-Metadatendateien und
      * ruft für jedes erzeugte GutenbergDoc-Objekt die Indexierung auf.
      */
+    @SuppressWarnings("unused")
     private void indexGutenbergSelection() {
 
         File folder = new File("gutenberg" + File.separator + "selection");
@@ -165,6 +168,7 @@ public class SolrIndexer {
      *
      * @param maxNumOfDownloads Schwellwert
      */
+    @SuppressWarnings("unused")
     private void deleteDocsByNumOfDownloads(int maxNumOfDownloads) {
         UpdateRequest updateRequest = new UpdateRequest();
         //updateRequest.setBasicAuthCredentials(Configuration.USERNAME, Configuration.PASSWORD);
