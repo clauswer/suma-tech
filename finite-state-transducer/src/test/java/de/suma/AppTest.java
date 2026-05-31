@@ -8,6 +8,7 @@ import org.junit.Test;
  *
  * @author Sascha Szott
  */
+@SuppressWarnings("unused")
 public class AppTest {
 
 }

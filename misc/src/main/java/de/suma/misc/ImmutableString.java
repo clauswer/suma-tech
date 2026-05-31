@@ -17,6 +17,7 @@ public class ImmutableString {
     // auf den Wert 0 setzen, um die Ausgabe abzuschalten
     public static final int GC_STATS_OUTPUT_RATE = 1000;
 
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
 
         System.out.println("=== PART 1: Without StringBuilder ===");

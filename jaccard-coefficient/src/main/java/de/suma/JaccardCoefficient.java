@@ -68,27 +68,28 @@ public class JaccardCoefficient {
     }
 
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        String query;
+        try (Scanner input = new Scanner(System.in)) {
+            String query;
 
-        while (true) {
-            System.out.print("search query >>> ");
-            query = input.nextLine();
+            while (true) {
+                System.out.print("search query >>> ");
+                query = input.nextLine();
 
-            if (query.equals("quit!")) {
-                break;
-            }
+                if (query.equals("quit!")) {
+                    break;
+                }
 
-            JaccardCoefficient jaccardCoefficient = new JaccardCoefficient();
-            List<SearchHit> ranking = jaccardCoefficient.computeRanking(query);
+                JaccardCoefficient jaccardCoefficient = new JaccardCoefficient();
+                List<SearchHit> ranking = jaccardCoefficient.computeRanking(query);
 
-            if (ranking.isEmpty()) {
-                System.out.println("Leider gab es für Ihre Anfrage keine Treffer ;(");
-            }
-            else {
-                System.out.println("Es wurden " + ranking.size() + " Treffer gefunden. Nachfolgend das Ranking der Dokumente:");
-                for (SearchHit searchHit : ranking) {
-                    System.out.println(searchHit);
+                if (ranking.isEmpty()) {
+                    System.out.println("Leider gab es für Ihre Anfrage keine Treffer ;(");
+                }
+                else {
+                    System.out.println("Es wurden " + ranking.size() + " Treffer gefunden. Nachfolgend das Ranking der Dokumente:");
+                    for (SearchHit searchHit : ranking) {
+                        System.out.println(searchHit);
+                    }
                 }
             }
         }
