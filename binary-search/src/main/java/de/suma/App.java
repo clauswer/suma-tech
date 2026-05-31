@@ -1,7 +1,6 @@
 package de.suma;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,6 +63,7 @@ public class App {
      * @param k Suchwert
      * @return Liste der Elemente des Arrays, die während der Suche nach k berücksichtigt wurden
      */
+    @SuppressWarnings("unused")
     public List<Integer> binarySearchInternal(int[] searchArray, int k, List<Integer> comparisons) {
         if (searchArray.length == 1) { // Basisfall der Rekursion
             comparisons.add(searchArray[0]);
@@ -87,7 +87,7 @@ public class App {
             // Suchwert k im rechten Teilarray weitersuchen
             // TODO
         }
-        
+
         // TODO
         return Collections.emptyList();
     }
@@ -102,9 +102,9 @@ public class App {
         if (searchArray.length == 0 || searchArray.length == 1) {
             return true; // leeres oder einelementiges Array ist per Definition sortiert
         }
-        
+
         // TODO
-        
+
         return true; // alle Vergleiche bestanden → Werte im Array sind aufsteigend sortiert
     }
 }
