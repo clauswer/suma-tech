@@ -167,6 +167,7 @@ public class SolrSearcherWithAuth {
      * @throws IOException
      * @throws SolrServerException
      */
+    @SuppressWarnings("unused")
     private void tryToConnectToUnreachableServer() throws IOException, SolrServerException {
         String solrServerUrl = "http://192.168.0.14:8984/solr/shakespeare";
         SolrClient client = new HttpSolrClient.Builder(solrServerUrl).build();
