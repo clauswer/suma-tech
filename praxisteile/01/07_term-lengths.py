@@ -1,6 +1,6 @@
 def compute_term_lengths(input_file):
     """
-    Berechnet die minimale, maximale und durchschnittliche Länge der Terme.
+    Berechnet die minimale, maximale und durchschnittliche Länge der Terme in der übergebenen Datei.
     """
     with open(input_file, "r", encoding="utf-8") as infile:
         # Datei zeilenweise einlesen
@@ -15,6 +15,7 @@ def compute_term_lengths(input_file):
 
     sum_of_lengths = 0
 
+    # über alle Tokens iterieren, wobei jedes Token nur einmal betrachtet werden muss
     for token in set(tokens):
         length = len(token)
         sum_of_lengths += length
@@ -22,11 +23,13 @@ def compute_term_lengths(input_file):
             min_length = length
             min_length_tokens = [token]
         elif length == min_length:
+            # neues Token mit aktueller minimaler Länge gefunden
             min_length_tokens.append(token)
         if max_length is None or length > max_length:
             max_length = length
             max_length_tokens = [token]
         elif length == max_length:
+            # neues Token mit aktueller maximaler Länge gefunden
             max_length_tokens.append(token)
 
     print(f"Durchschnittliche Termlänge: {round(sum_of_lengths / len(set(tokens)), 1)}")
