@@ -6,7 +6,7 @@ import re
 def tokenize(input_file):
     with open(input_file, "r", encoding="utf-8") as infile:
         text = infile.read() # Text aus der Datei lesen
-    
+
     # NLTK zur Tokenisierung verwenden (deutsche Sprache)
     tokens = word_tokenize(text, "german")
 
@@ -17,19 +17,19 @@ def tokenize(input_file):
         token_cleaned = re.sub(r"\[[^\[\]]+\]$", "", token)
         if token_cleaned != token:
             token = token_cleaned
-        
+
         # führender und abschließender Unterstrich entfernen
         # und anschließend möglichen Punkt am Ende entfernen
         token = token.strip("_")
         if token.endswith("."):
             token = token[:-1]
-        
+
         if len(token.strip()) < 2: # Token mit nur einem Zeichen ignorieren
             continue
-        
+
         token = token.lower() # alle Zeichen im Token in Kleinbuchstaben umwandeln
         token_list.append(token)
-    
+
     return token_list
 
 def get_top_bigrams(tokens, n):
@@ -62,13 +62,15 @@ if __name__ == "__main__":
     filename = "21000_filtered.txt"
     token_list = tokenize(filename)
     k = 20
+
+    # Ausgabe der Top-k Bigramme
     bigrams = get_top_bigrams(token_list, k)
     print(f"Top {k} Bigramme:")
     for bigram, count in bigrams:
         print(f"{bigram[0]} {bigram[1]}: {count}")
 
+    # Ausgabe der Top-k Trigramme
     trigrams = get_top_trigrams(token_list, k)
     print(f"\nTop {k} Trigramme:")
     for trigram, count in trigrams:
         print(f"{trigram[0]} {trigram[1]} {trigram[2]}: {count}")
-    
