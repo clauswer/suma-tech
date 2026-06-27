@@ -36,11 +36,11 @@ def compute_term_lengths(input_file):
 
     print(f"Durchschnittliche Termlänge: {round(sum_of_lengths / len(set(tokens)), 1)}")
 
-    print(f"\nTerme mit minimaler Länge {min_length}:")
+    print(f"\n{len(min_length_tokens)} Terme mit minimaler Länge {min_length}:")
     for token in min_length_tokens:
         print(token)
 
-    print(f"\nTerme mit maximaler Länge {max_length}:")
+    print(f"\n{len(max_length_tokens)} Terme mit maximaler Länge {max_length}:")
     for token in max_length_tokens:
         print(token)
 
