@@ -66,7 +66,7 @@ juchheisa heisa he: 4
 
 ```sh
 pip install bs4
-python 02_fetch-urls-goethe-german-works.py
+python 02_fetch-german-work-urls.py
 ```
 
 Resultat: Es wurden 49 Werke von Goethe gefunden.

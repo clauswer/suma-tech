@@ -4,7 +4,7 @@ import os
 
 def download_file(url, filename):
     """
-    Lädt eine UTF-8-codierte Datei von der angegebenen URL herunter 
+    Lädt eine UTF-8-codierte Datei von der angegebenen URL herunter
     und speichert sie als UTF-8-codierte Textdatei unter dem angegebenen Namen.
 
     Parameter:
@@ -21,17 +21,18 @@ def download_file(url, filename):
             file.write(response.text)
         print(f"Datei erfolgreich heruntergeladen: {filename}")
         return True
-    
+
     print(f"Fehler beim Herunterladen der Datei: {response.status_code}")
     return False
 
 if __name__ == "__main__":
-    base_dir = "goethe-works"
+    base_dir = "german"
     if not os.path.exists(base_dir):
         os.mkdir(base_dir)
-    
+    input_file = "Goethe-ebooks.txt"
+
     num_of_downloads = 0
-    with open("Goethe-ebooks.txt", "r", encoding="utf-8") as file:
+    with open(input_file, "r", encoding="utf-8") as file:
         for base_url in file:
             match = re.search(r"/ebooks/(\d+)$", base_url)
             if match:
@@ -41,5 +42,5 @@ if __name__ == "__main__":
                 file = os.path.join(base_dir, f"{ebook_id}.txt")
                 if download_file(url, file):
                     num_of_downloads += 1
-    
+
     print(f"{num_of_downloads} Dateien erfolgreich heruntergeladen.")
