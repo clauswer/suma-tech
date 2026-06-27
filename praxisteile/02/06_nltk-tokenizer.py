@@ -46,4 +46,9 @@ def tokenize_and_save(input_file, output_file, case_insensitive=False):
 if __name__ == "__main__":
     input_file = "21000_filtered.txt"
     output_file = "21000_tokens.txt"
+
+    # NLTK-Punkt-Tokenizer für deutsche Sprache herunterladen, sofern noch nicht vorhanden
+    import nltk
+    nltk.download("punkt_tab", quiet=True)
+
     tokenize_and_save(input_file, output_file, case_insensitive=True)
