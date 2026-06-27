@@ -20,12 +20,14 @@ def compute_term_lengths(input_file):
         length = len(token)
         sum_of_lengths += length
         if min_length is None or length < min_length:
+            # neue minimale Termlänge gefunden
             min_length = length
             min_length_tokens = [token]
         elif length == min_length:
             # neues Token mit aktueller minimaler Länge gefunden
             min_length_tokens.append(token)
         if max_length is None or length > max_length:
+            # neue maximale Termlänge gefunden
             max_length = length
             max_length_tokens = [token]
         elif length == max_length:
