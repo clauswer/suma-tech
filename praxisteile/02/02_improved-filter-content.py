@@ -9,7 +9,7 @@ def extract_gutenberg_text(input_file, output_file):
     Am Ende der Datei können wir die Zeile, die mit "[Anmerkungen zur Transkription:"
     beginnt, als Endmarker verwenden. Alles, was danach kommt, wird fortan ignoriert.
 
-    Die Methode speichert den gefilterten Inhalt in einer neuen Textdatei mit dem 
+    Die Methode speichert den gefilterten Inhalt in einer neuen Textdatei mit dem
     angegebenen Namen.
 
     Parameter:
@@ -41,6 +41,6 @@ if __name__ == "__main__":
     if os.path.exists(input_file_backup):
         print(f"Backup-Datei {input_file_backup} existiert bereits. Program wird beendet.")
         exit(1)
-    
+
     os.rename(input_file, input_file_backup)
     extract_gutenberg_text(input_file_backup, input_file)

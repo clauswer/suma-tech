@@ -2,8 +2,8 @@ import re
 
 def tokenize_and_save(input_file, output_file, case_insensitive=False):
     """
-    Tokenisiert den Text der Eingabedatei basierend auf Whitespaces und speichert die Tokens in einer Ausgabedatei.
-    Hierbei wird eine ggf. vorhandene Korrektur (in eckigen Klammern) am Ende eines Token entfernt.
+    Tokenisiert den Text der Eingabedatei basierend auf einem regulären Ausdruck und speichert die Tokens
+    in einer Ausgabedatei. Hierbei wird eine ggf. vorhandene Korrektur (in eckigen Klammern) am Ende eines Token entfernt.
 
     Parameter:
     - input_file (str): Der Pfad zur Eingabedatei, die tokenisiert werden soll.

@@ -25,7 +25,7 @@ def compute_term_lengths(input_file):
             max_length_tokens = [token]
         elif length == max_length:
             max_length_tokens.append(token)
-    
+
     print(f"Minimale Termlänge: {min_length}")
     print(f"Maximale Termlänge: {max_length}")
     print(f"Durchschnittliche Termlänge: {sum_of_lengths / len(set(tokens)):}")
