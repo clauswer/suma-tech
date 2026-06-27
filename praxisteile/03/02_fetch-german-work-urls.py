@@ -54,12 +54,16 @@ if __name__ == "__main__":
     authors = [
         {"id": 586, "name": "Goethe"},
     ]
+    # Verzeichnis german-work-urls erstellen, falls es nicht existiert
+    dir_path = Path("german-work-urls")
+    dir_path.mkdir(parents=True, exist_ok=True)
+
     for author in authors:
         books = fetch_books_by_author_id(author["id"])
         print(f"Es wurden {len(books)} Werke von {author['name']} gefunden.")
 
         if books and len(books) > 0:
-            output_path = Path("german-work-urls") / f"{author['name']}-ebooks.txt"
+            output_path = dir_path / f"{author['name']}-ebooks.txt"
             with output_path.open("w", encoding="utf-8") as file:
                 for book in books:
                     file.write(book + "\n")
