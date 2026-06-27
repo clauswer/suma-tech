@@ -19,19 +19,22 @@ def count_term_frequencies(input_file):
     # Häufigkeiten bestimmen
     for token in tokens:
         if token in term_frequencies:
+            # token erstmalig gefunden, daher Zähler auf 1 setzen
             term_frequencies[token] += 1
         else:
+            # token erneut gefunden, daher vorhandenen Zähler um 1 erhöhen
             term_frequencies[token] = 1
 
+    # Sortieren der Terme nach ihrer Häufigkeit
     sorted_terms = sorted(term_frequencies.items(), key=lambda item: item[1])
 
-    # 10 seltenste Terme
-    print("\nSeltenste Terme:")
+    # Ausgabe der 10 seltensten Terme
+    print("\n10 seltenste Terme:")
     for term, count in sorted_terms[:10]: # Ausgabe der ersten 10 Elemente der sortierten Liste (seltenste Terme)
         print(f"{term} ({count})")
 
-    # 10 häufigste Terme
-    print("\nHäufigste Terme:")
+    # Ausgabe der 10 häufigsten Terme
+    print("\n10 häufigste Terme:")
     for term, count in sorted_terms[-10:]: # Ausgabe der letzten 10 Elemente der sortierten Liste (häufigste Terme)
         print(f"{term} ({count})")
 
