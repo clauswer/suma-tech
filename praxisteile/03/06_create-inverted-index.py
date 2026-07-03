@@ -1,25 +1,26 @@
 import os
 import json
 
-def construct_index(base_dir):
-    inverted_index = dict()    
+def construct_index(author_path, author_dir):
+    inverted_index = dict()
     num_of_terms = 0
 
     # über alle Termdateien im Import-Verzeichnis iterieren
-    for datei in os.listdir(base_dir):        
-        if datei.endswith("-filtered-terms.txt"):
-            document_id = int(datei.split("-", maxsplit=1)[0])
+    for file in os.listdir(author_path):
+        if file.endswith("-filtered-terms.txt"):
+            # ID des Dokuments aus dem Dateinamen extrahieren
+            document_id = int(file.split("-", maxsplit=1)[0])
 
             # Termdatei einlesen und Terme in invertierten Index eintragen
-            with open(os.path.join(base_dir, datei), "r", encoding="utf-8") as term_file:
+            with open(os.path.join(author_path, file), "r", encoding="utf-8") as term_file:
                 terms = term_file.read().splitlines()
                 for term in terms:
                     if term not in inverted_index:
                         num_of_terms += 1
                         inverted_index[term] = []
                     inverted_index[term].append(document_id)
-    
-    print(f"Es wurden {num_of_terms} Terme in den invertierten Index eingetragen.")
+
+    print(f"Es wurden {num_of_terms} Terme in den invertierten Index von {author_dir} eingetragen.")
 
     # sortiere nun noch die Postings-Listen (Listen von Dokument-IDs) numerisch
     for term in inverted_index:
@@ -30,23 +31,47 @@ def construct_index(base_dir):
 def save_index(inverted_index, file_name):
     """
     Speichert den invertierten Index in einer JSON-Datei.
-    Hierbei werden sowohl die Terme im Term Dictionary als auch die Dokument-IDs 
+    Hierbei werden sowohl die Terme im Term Dictionary als auch die Dokument-IDs
     in den Postings-Listen sortiert. Terme werden lexikographisch sortiert.
     Dokument-IDs sind numerisch und werden daher numerisch sortiert.
 
     :param inverted_index: Der invertierte Index als Python-Dictionary
     :param file_name: Der Name der Ausgabedatei
     """
-    with open(inverted_index_file, "w", encoding="utf-8") as outfile:
+    with open(file_name, "w", encoding="utf-8") as outfile:
         json.dump(inverted_index, outfile, ensure_ascii=False, indent=4, sort_keys=True)
-    
+
     print(f"Invertierter Index wurde in {file_name} gespeichert.")
 
 if __name__ == "__main__":
     # Import-Verzeichnis mit allen heruntergeladenen E-Books und den Termdateien (*-filtered-terms.txt)
-    base_dir = "goethe-works"
+    base_dir = "german-works"
+    index_base_dir = "inverted-index"
+    # Gesamtindex für alle Autoren erstellen, wenn tatsächlich mehrere Autoren vorhanden sind
+    multiple_authors = False
 
-    inverted_index = construct_index(base_dir)
-    inverted_index_file = "Goethe-inverted-index.json"
-    save_index(inverted_index, inverted_index_file)
-    
+    full_inverted_index = None
+    for author_dir in os.listdir(base_dir):
+        author_path = os.path.join(base_dir, author_dir)
+        if os.path.isdir(author_path):
+            inverted_index = construct_index(author_path, author_dir)
+            inverted_index_file = f"{author_dir}-inverted-index.json"
+            save_index(inverted_index, os.path.join(index_base_dir, inverted_index_file))
+
+            if full_inverted_index is None:
+                full_inverted_index = inverted_index
+            else:
+                if not multiple_authors:
+                    multiple_authors = True
+                # Füge den invertierten Index des Autors zum Gesamtindex hinzu
+                for term, postings in inverted_index.items():
+                    if term not in full_inverted_index:
+                        full_inverted_index[term] = []
+                    full_inverted_index[term].extend(postings)
+
+    if multiple_authors:
+        # Speichere den Gesamtindex (auf Basis der Werke aller Autoren) in einer JSON-Datei
+        # vorher die Einträge in den Postings-Listen numerisch sortieren
+        for term in full_inverted_index:
+            full_inverted_index[term].sort(key=int)
+        save_index(full_inverted_index, os.path.join(index_base_dir, "full-inverted-index.json"))
