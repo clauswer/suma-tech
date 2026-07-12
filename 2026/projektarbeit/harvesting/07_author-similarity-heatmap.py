@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 
 def build_matrix(df: pd.DataFrame) -> pd.DataFrame:
     df = df[["Author A", "Author B", "Similarity"]].copy()
@@ -49,7 +50,9 @@ def draw_heatmap(matrix: pd.DataFrame, output: str) -> None:
 
 
 if __name__ == "__main__":
-    input_file = "author-similarity.csv"
-    df = pd.read_csv(input_file, names=["Author A", "Author B", "Similarity"])
-    matrix = build_matrix(df)
-    draw_heatmap(matrix, "author-similarity.png")
+    file_list = [file for file in os.listdir() if ((file.endswith(".csv")) and (file.startswith("author-similarity_")))]
+    for input_file in file_list:
+        similarity_type = input_file.split("_")[-1].split(".")[0]
+        df = pd.read_csv(input_file, names=["Author A", "Author B", "Similarity"])
+        matrix = build_matrix(df)
+        draw_heatmap(matrix, f"author-similarity_{similarity_type}.png")
