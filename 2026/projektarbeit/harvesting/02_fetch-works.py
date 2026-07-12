@@ -48,8 +48,11 @@ if __name__ == "__main__":
                         if not os.path.exists(os.path.join(base_dir, author_name)):
                             os.makedirs(os.path.join(base_dir, author_name))
                         output_file = os.path.join(base_dir, f"{author_name}", f"{ebook_id}.txt")
-                        if download_file(url, output_file):
-                            num_of_downloads += 1
+                        if os.path.exists(output_file):
+                            print(f"Datei {output_file} existiert bereits. Überspringe den Download.")
+                        else:
+                            if download_file(url, output_file):
+                                num_of_downloads += 1
             print(f"{num_of_downloads} Volltextdateien für Autor {author_name} heruntergeladen.")
 
     print(f"{num_of_downloads} Volltextdateien erfolgreich heruntergeladen.")
