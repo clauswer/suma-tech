@@ -38,5 +38,5 @@ def compute_terms_per_author(input_dir, stemmer=None):
 
 if __name__ == "__main__":
     input_dir = "german-works"
-    stemmer = None # oder SnowballStemmer("german"), falls Stemming gewünscht ist
+    stemmer = SnowballStemmer("german") # oder SnowballStemmer("german"), falls Stemming gewünscht ist
     compute_terms_per_author(input_dir, stemmer)
