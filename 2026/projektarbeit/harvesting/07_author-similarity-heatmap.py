@@ -20,7 +20,7 @@ def build_matrix(df: pd.DataFrame) -> pd.DataFrame:
     return matrix.fillna(0.0)
 
 
-def draw_heatmap(matrix: pd.DataFrame, output: str) -> None:
+def draw_heatmap(matrix: pd.DataFrame, output: str, mode: str) -> None:
     n = len(matrix)
     cell = max(0.55, min(1.1, 11 / max(1, n)))
     plt.figure(figsize=(n * cell + 2.5, n * cell + 1.8))
@@ -38,7 +38,7 @@ def draw_heatmap(matrix: pd.DataFrame, output: str) -> None:
         cbar_kws={"label": "Ähnlichkeit", "shrink": 0.8},
     )
 
-    plt.title("Ähnlichkeitsmatrix der Autoren", fontsize=12, pad=12)
+    plt.title(f"{mode.capitalize()}-Ähnlichkeitsmatrix der Autoren", fontsize=12, pad=12)
     plt.xticks(rotation=60, ha="right")
     plt.yticks(rotation=0)
     plt.xlabel("")
@@ -47,9 +47,9 @@ def draw_heatmap(matrix: pd.DataFrame, output: str) -> None:
     plt.savefig(output, dpi=300, bbox_inches="tight")
     plt.close()
 
-
 if __name__ == "__main__":
-    input_file = "author-similarity.csv"
+    mode = "jaccard"  # Ähnlichkeitsmodus für Term-Mengen: "jaccard", "dice" oder "otsuka-ochiai"
+    input_file = f"author-similarity_{mode}.csv"
     df = pd.read_csv(input_file, names=["Author A", "Author B", "Similarity"])
     matrix = build_matrix(df)
-    draw_heatmap(matrix, "author-similarity.png")
+    draw_heatmap(matrix, f"author-similarity_{mode}.png", mode)
