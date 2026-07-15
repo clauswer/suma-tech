@@ -43,12 +43,17 @@ def tokenize_words(input_file, output_file, min_token_length=4):
 
 if __name__ == "__main__":
     input_dir = "german-works"
-    # Suche in Autorverzeichnissen nach Textdateien mit der Endung ".txt.clean" (von Footer und Header bereinigte Dateien)
+    # Suche in Autorenverzeichnissen nach Textdateien mit Endung ".txt.clean" (von Footer und Header bereinigte Dateien)
+    num_of_files_processed = 0
     for author_dir in os.listdir(input_dir):
         author_path = os.path.join(input_dir, author_dir)
         if os.path.isdir(author_path):
+            print(f"Verarbeite Autor {author_dir}")
             for filename in os.listdir(author_path):
                 if filename.endswith(".txt.clean"):
+                    num_of_files_processed += 1
                     input_file = os.path.join(author_path, filename)
                     output_file = os.path.join(author_path, filename.replace(".txt.clean", ".tokens"))
                     tokenize_words(input_file, output_file)
+
+    print(f"{num_of_files_processed} Dateien verarbeitet.")
