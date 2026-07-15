@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from pathlib import Path
+import os
 
 def fetch_books_urls_by_author_id(author_id):
     """
@@ -19,7 +20,7 @@ def fetch_books_urls_by_author_id(author_id):
     # HTML-Seite abrufen
     response = requests.get(URL)
     response.encoding = 'utf-8'
-    if response.status_code != 200:
+    if response.status_code != requests.codes.ok:
         print(f"Fehler beim Abrufen der Seite {URL}: {response.status_code}")
         return []
 
@@ -69,13 +70,16 @@ if __name__ == "__main__":
         {"id": 1765,    "name": "Fontane"},
         {"id": 846,     "name": "Rilke"},
     ]
+    base_dir = "german-works"
+    os.makedirs(base_dir, exist_ok=True)
+
     for author in authors:
         book_urls = fetch_books_urls_by_author_id(author["id"])
         print(f"Es wurden {len(book_urls)} E-Book-URLs von Werken des Autors {author['name']} gefunden.")
 
         num_of_lines_written = 0
         if book_urls and len(book_urls) > 0:
-            output_path = Path("german-works") / f"{author['name']}-ebook-urls.txt"
+            output_path = Path(base_dir) / f"{author['name']}-ebook-urls.txt"
             with output_path.open("w", encoding="utf-8") as file:
                 for book_url in book_urls:
                     file.write(book_url + "\n")
