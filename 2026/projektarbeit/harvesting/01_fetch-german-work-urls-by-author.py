@@ -3,12 +3,14 @@ from bs4 import BeautifulSoup
 import re
 from pathlib import Path
 
-def fetch_books_by_author_id(author_id):
+def fetch_books_urls_by_author_id(author_id):
     """
-    Gibt eine Liste von URLs für alle Werke des Autors mit der angegebenen ID zurück.
+    Gibt eine Liste von URLs für alle Werke des Autors mit der angegebenen Autor-ID aus dem Project Gutenberg zurück.
+    Es werden hierbei nur Werke berücksichtigt, die in deutscher Sprache verfügbar sind und bei denen der Autor
+    tatsächlich in der Autor-Rolle angegeben ist.
 
     Parameter:
-    - author_id (int): Die ID des Autors, für den die Werke abgerufen werden sollen.
+    - author_id (int): Die ID des Autors im Project Gutenberg, für den die URLs der Werke abgerufen werden sollen.
     """
 
     # URL der HTML-Seite mit allen deutschsprachigen E-Books
@@ -18,7 +20,7 @@ def fetch_books_by_author_id(author_id):
     response = requests.get(URL)
     response.encoding = 'utf-8'
     if response.status_code != 200:
-        print(f"Fehler beim Abrufen der Seite: {response.status_code}")
+        print(f"Fehler beim Abrufen der Seite {URL}: {response.status_code}")
         return []
 
     # HTML-Seite parsen
@@ -33,46 +35,49 @@ def fetch_books_by_author_id(author_id):
             break
 
     if not author_section:
-        print("Autor-Abschnitt im HTML nicht gefunden.")
+        print("Autor-Abschnitt im HTML-Code nicht gefunden.")
         return []
 
-    # Die folgende <ul>-Liste durchsuchen
+    # Die direkt auf <h2> folgende <ul>-Liste durchsuchen
     book_list = author_section.find_next_sibling("ul")
     if not book_list:
         print("Keine Liste mit Werken des Autors gefunden.")
         return []
 
     # Alle <li>-Elemente extrahieren, die einen Link enthalten
-    books = []
+    book_urls = []
     for li in book_list.find_all("li", class_="pgdbetext"):
         link = li.find("a")
         if link:
             href = link["href"]
             if re.match(r"/ebooks/\d+", href) and li.text.endswith("(German) (as Author)"):
-                books.append("https://www.gutenberg.org" + href)
+                book_urls.append("https://www.gutenberg.org" + href)
 
-    return books
+    return book_urls
 
 if __name__ == "__main__":
+    # Mapping von Autoren-IDs im Project Gutenberg zu den entsprechenden Autorennamen
     authors = [
-        {"id": 586, "name": "Goethe"},
-        {"id": 289, "name": "Schiller"},
-        {"id": 1049, "name": "Heine"},
-        {"id": 35073, "name": "Mann"},
-        {"id": 1735, "name": "Kafka"},
-        {"id": 941, "name": "Hesse"},
-        {"id": 1426, "name": "Kant"},
-        {"id": 1995, "name": "Humboldt"},
-        {"id": 1765, "name": "Fontane"},
-        {"id": 846, "name": "Rilke"},
+        {"id": 586,     "name": "Goethe"},
+        {"id": 289,     "name": "Schiller"},
+        {"id": 1049,    "name": "Heine"},
+        {"id": 35073,   "name": "Mann"},
+        {"id": 1735,    "name": "Kafka"},
+        {"id": 941,     "name": "Hesse"},
+        {"id": 1426,    "name": "Kant"},
+        {"id": 1995,    "name": "Humboldt"},
+        {"id": 1765,    "name": "Fontane"},
+        {"id": 846,     "name": "Rilke"},
     ]
     for author in authors:
-        books = fetch_books_by_author_id(author["id"])
-        print(f"Es wurden {len(books)} Werke von {author['name']} gefunden.")
+        book_urls = fetch_books_urls_by_author_id(author["id"])
+        print(f"Es wurden {len(book_urls)} E-Book-URLs von Werken des Autors {author['name']} gefunden.")
 
-        if books and len(books) > 0:
+        num_of_lines_written = 0
+        if book_urls and len(book_urls) > 0:
             output_path = Path("german-works") / f"{author['name']}-ebook-urls.txt"
             with output_path.open("w", encoding="utf-8") as file:
-                for book in books:
-                    file.write(book + "\n")
-            print(f"Die URLs der Werke wurden in Datei {author['name']}-ebook-urls.txt gespeichert.")
+                for book_url in book_urls:
+                    file.write(book_url + "\n")
+                    num_of_lines_written += 1
+            print(f"Die {num_of_lines_written} E-Book-URLs der Werke von {author['name']} wurden in der Datei {output_path.name} gespeichert.")
