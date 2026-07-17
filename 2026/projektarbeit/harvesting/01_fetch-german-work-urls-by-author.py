@@ -73,9 +73,11 @@ if __name__ == "__main__":
     base_dir = "german-works"
     os.makedirs(base_dir, exist_ok=True)
 
+    overall_num_of_ebook_urls = 0
     for author in authors:
         book_urls = fetch_books_urls_by_author_id(author["id"])
         print(f"Es wurden {len(book_urls)} E-Book-URLs von Werken des Autors {author['name']} gefunden.")
+        overall_num_of_ebook_urls += len(book_urls)
 
         num_of_lines_written = 0
         if book_urls and len(book_urls) > 0:
@@ -85,3 +87,5 @@ if __name__ == "__main__":
                     file.write(book_url + "\n")
                     num_of_lines_written += 1
             print(f"Die {num_of_lines_written} E-Book-URLs der Werke von {author['name']} wurden in der Datei {output_path.name} gespeichert.")
+
+    print(f"Insgesamt wurden {overall_num_of_ebook_urls} E-Book-URLs gefunden.")
