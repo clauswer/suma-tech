@@ -32,11 +32,16 @@ def extract_gutenberg_text(input_file, output_file):
 if __name__ == "__main__":
     input_dir = "german-works"
     # Suche in Autorverzeichnissen nach Textdateien mit der Endung ".txt"
+    num_of_files_processed = 0
     for author_dir in os.listdir(input_dir):
         author_path = os.path.join(input_dir, author_dir)
         if os.path.isdir(author_path):
+            print(f"Verarbeitung der Volltexte für Autor {author_dir}")
             for filename in os.listdir(author_path):
                 if filename.endswith(".txt"):
+                    num_of_files_processed += 1
                     input_file = os.path.join(author_path, filename)
                     output_file = os.path.join(author_path, filename.replace(".txt", ".txt.clean"))
                     extract_gutenberg_text(input_file, output_file)
+
+    print(f"{num_of_files_processed} Dateien verarbeitet.")

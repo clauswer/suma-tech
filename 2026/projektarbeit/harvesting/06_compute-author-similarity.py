@@ -26,7 +26,7 @@ def compute_similarity(terms_A, terms_B, mode="jaccard"):
     else:
         similarity = 0
 
-    print(f"{mode.capitalize()}-Similarity({author_A}, {author_B}) = {similarity:.4f}")
+    print(f"{mode.capitalize()}-Similarity({author_A}, {author_B}) = {mode.capitalize()}-Similarity({author_B}, {author_A}) = {similarity:.4f}")
     return similarity
 
 if __name__ == "__main__":
