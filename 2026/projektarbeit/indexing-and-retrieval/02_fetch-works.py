@@ -1,5 +1,15 @@
+#!/bin/python
+
+"""
+Skript zum Laden von E-Book-Volltexten aus dem Project Gutenberg. Die IDs der E-Books werden aus der Textdatei ebook_ids.txt gelesen. Für jede ID wird die entsprechende Volltextdatei heruntergeladen und im Ordner fulltexts gespeichert.
+
+authors: Anja Jungbluth, Sebastian Scherübl, Claus Werner
+date: 2024-06-10
+version: 1.0
+"""
+
+
 import requests
-import re
 import os
 import time
 
@@ -65,24 +75,27 @@ if __name__ == "__main__":
     num_of_empty_files = 0
 
     # IDs aus der Textdatei einlesen und Volltextdateien herunterladen
-    with open("ebook_ids.txt", "r", encoding="utf-8") as file:
-        for ebook_id in file.readlines():
-            ebook_id = ebook_id.strip()  # Entfernen ggf. vorandener führender und nachgestellter Leerzeichen und Zeilenumbrüche
-            output_file = os.path.join(base_dir, f"{ebook_id}.txt")
-            
-            if not os.path.exists(output_file):
-                url = f"https://www.gutenberg.org/ebooks/{ebook_id}.txt.utf-8"
-                print(f"Herunterladen der Textdatei von {url}")       
+    try:
+        with open("ebook_ids.txt", "r", encoding="utf-8") as file:
+            for ebook_id in file.readlines():
+                ebook_id = ebook_id.strip()  # Entfernen ggf. vorandener führender und nachgestellter Leerzeichen und Zeilenumbrüche
+                output_file = os.path.join(base_dir, f"{ebook_id}.txt")
                 
-                if download_file(url, output_file):
-                    num_of_downloads += 1
-                else:
-                    num_of_errors += 1
-                
-                if check_empty_file(output_file):
-                    num_of_empty_files += 1
-    
-    # Ausgaben
-    print(f"{num_of_downloads} Textdateien heruntergeladen.")
-    print(f"Anzahl der Fehler: {num_of_errors}")
-    print(f"Anzahl der leeren Dateien: {num_of_empty_files}")
+                if not os.path.exists(output_file):
+                    url = f"https://www.gutenberg.org/ebooks/{ebook_id}.txt.utf-8"
+                    print(f"Herunterladen der Textdatei von {url}")       
+                    
+                    if download_file(url, output_file):
+                        num_of_downloads += 1
+                    else:
+                        num_of_errors += 1
+                    
+                    if check_empty_file(output_file):
+                        num_of_empty_files += 1
+    except Exception as e:
+        print(f"Es ist ein Fehler aufgetreten: {e}")
+    finally:
+        # Ausgaben
+        print(f"{num_of_downloads} Textdateien heruntergeladen.")
+        print(f"Anzahl der Fehler: {num_of_errors}")
+        print(f"Anzahl der leeren Dateien: {num_of_empty_files}")
