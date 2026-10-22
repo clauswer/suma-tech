@@ -4,7 +4,7 @@
 Skript zum Abfragen eines lokalen Solr-Servers und Ermitteln aller IDs von E-Books, die in deutscher Sprache vorliegen und den Dokumenttyp Text besitzen. Die IDs werden in der Textdatei ebook_ids.txt abgespeichert (eine ID pro Zeile). Die Anzahl der gespeicherten E-Book-IDs wird auf der Konsole ausgegeben.
 
 authors: Anja Jungbluth, Sebastian Scherübl, Claus Werner
-date: 2024-06-10
+date: 2024-10-06
 version: 1.0
 """
 

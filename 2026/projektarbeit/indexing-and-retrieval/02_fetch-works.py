@@ -4,7 +4,7 @@
 Skript zum Laden von E-Book-Volltexten aus dem Project Gutenberg. Die IDs der E-Books werden aus der Textdatei ebook_ids.txt gelesen. Für jede ID wird die entsprechende Volltextdatei heruntergeladen und im Ordner fulltexts gespeichert.
 
 authors: Anja Jungbluth, Sebastian Scherübl, Claus Werner
-date: 2024-06-10
+date: 2024-10-06
 version: 1.0
 """
 
