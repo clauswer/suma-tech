@@ -12,14 +12,6 @@ date: 2024-10-22
 version: 1.0
 """
 
-# TODO:
-# - [ ] docstring
-# - [x] passen Sie es so an, dass es die Volltextdateien aus dem Verzeichnis `fulltexts` einliest und 
-# - [x] die gefilterten Volltexte (ohne Header und Footer) ebenfalls im Verzeichnis `fulltexts` unter dem Namenschema `<ebook_id>_filtered.txt` speichert. 
-# - [x] Ihr Programm soll eine Fehlermeldung ausgeben, wenn in einer Volltextdatei keine gültigen Start- und End-Marker für Header und Footer gefunden werden. 
-# - [x] Gibt es E-Books, in denen keine gültigen Start- und End-Marker für Header und Footer gefunden wurden?
-
-
 import os
 
 def extract_gutenberg_text(input_file, output_file):
