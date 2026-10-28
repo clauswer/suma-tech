@@ -15,38 +15,9 @@ import sys
 import logging
 import json 
 
-# TODO: Funktion in 01 definieren und hier nur importieren
+from _01_get_ebook_ids import create_solr_instance
+
 logging.basicConfig(format='%(levelname)s: %(message)s')
-
-def create_solr_instance(solr_host: str) -> pysolr.Solr:
-    """Anlegen einer Solr-Instanz
-    
-    Parameter:
-    - solr_host (str): URL zum Solr-Core eines Solr-Hosts
-
-    Returns:
-    - Python-Objekt für Solr-Instanz (pysolr.Solr)
-    """
-
-    # Solr-Instanz erstellen
-    solr = pysolr.Solr(solr_host, timeout=10, always_commit=False)
-
-    # Error-Handling für die Verbindung zum Solr-Server
-    try:
-        solr.ping()
-    except pysolr.SolrError as e:
-        logging.error(f"Fehler beim Verbinden mit Solr: {e}")
-        exit(1)
-
-    # Error-Handling für die Antwort vom Solr-Server
-    try:
-        json.loads(solr.ping())
-    except json.JSONDecodeError:
-        logging.error("Fehler: Die Antwort vom Solr-Server ist kein gültiges JSON.")
-        exit(1)
-
-    return solr
-
 
 
 def query_ebook_id(solr_instanz:pysolr.Solr, ebook_id:str):
