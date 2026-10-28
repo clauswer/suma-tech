@@ -14,40 +14,54 @@ import logging
 
 logging.basicConfig(format='%(levelname)s: %(message)s')
 
-# Solr-Host-URI zum Solr-Core
-solr_host = "http://localhost:8983/solr/my1stcore"
+def create_solr_instance(solr_host: str) -> pysolr.Solr:
+    """Anlegen einer Solr-Instanz
+    
+    Parameter:
+    - solr_host (str): URL zum Solr-Core eines Solr-Hosts
 
-# Solr-Instanz erstellen
-solr = pysolr.Solr(solr_host, timeout=10)
+    Returns:
+    - Python-Objekt für Solr-Instanz (pysolr.Solr)
+    """
 
-# Error-Handling für die Verbindung zum Solr-Server
-try:
-    solr.ping()
-except pysolr.SolrError as e:
-    logging.error(f"Fehler beim Verbinden mit Solr: {e}")
-    exit(1)
+    # Solr-Instanz erstellen
+    solr = pysolr.Solr(solr_host, timeout=10, always_commit=False)
 
-# Error-Handling für die Antwort vom Solr-Server
-try:
-    json.loads(solr.ping())
-except json.JSONDecodeError:
-    logging.error("Fehler: Die Antwort vom Solr-Server ist kein gültiges JSON.")
-    exit(1)
+    # Error-Handling für die Verbindung zum Solr-Server
+    try:
+        solr.ping()
+    except pysolr.SolrError as e:
+        logging.error(f"Fehler beim Verbinden mit Solr: {e}")
+        exit(1)
 
+    # Error-Handling für die Antwort vom Solr-Server
+    try:
+        json.loads(solr.ping())
+    except json.JSONDecodeError:
+        logging.error("Fehler: Die Antwort vom Solr-Server ist kein gültiges JSON.")
+        exit(1)
 
-# Liste zum Sammeln der IDs
-ebook_ids = []
+    return solr
 
+if __name__ == "__main__":
+    # Solr-Host-URI zum Solr-Core
+    solr_host = "http://localhost:8983/solr/my1stcore"
 
-# Ergebnisse mittels Cursor abfragen:
-for doc in solr.search(q='type:Text AND language:de', fl='id',sort='id ASC',cursorMark='*'):
-    ebook_ids.append(doc['id'])
+    # Solr-Instanz erstellen
+    solr = create_solr_instance(solr_host)
 
-# IDs in Textdatei speichern
-filename = "ebook_ids.txt" 
-with open(filename, "w", encoding="utf-8") as f:
-    for id in ebook_ids:
-        f.writelines(id+"\n")
+    # Liste zum Sammeln der IDs
+    ebook_ids = []
 
-# Ausgabe der Anzahl
-print(f"{len(ebook_ids)} IDs gefunden und in {filename} gespeichert.")
+    # Ergebnisse mittels Cursor abfragen:
+    for doc in solr.search(q='type:Text AND language:de', fl='id',sort='id ASC',cursorMark='*'):
+        ebook_ids.append(doc['id'])
+
+    # IDs in Textdatei speichern
+    filename = "ebook_ids.txt" 
+    with open(filename, "w", encoding="utf-8") as f:
+        for id in ebook_ids:
+            f.writelines(id+"\n")
+
+    # Ausgabe der Anzahl
+    logging.info(f"{len(ebook_ids)} IDs gefunden und in {filename} gespeichert.")
