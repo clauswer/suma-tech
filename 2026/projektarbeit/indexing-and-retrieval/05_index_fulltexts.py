@@ -1,122 +1,238 @@
-#!/bin/python
+#!/usr/bin/env python3
 
-"""
-Skript zum Einlesen von Volltexten aus dem Verzeichnis `fulltexts` und Indexierung der Volltexte zusammen mit den Metadaten in den Solr-Core `pg_fulltexts`.
-Die Metadaten werden aus dem Solr-Core `my1stcore` abgefragt, basierend auf der E-Book-ID, die aus dem Dateinamen der Volltextdateien extrahiert wird.
+"""Indexiert gefilterte Project-Gutenberg-Volltexte zusammen mit ihren Metadaten im Solr-Core pg_fulltexts.
+
+Metadatenquelle: my1stcore
+Volltextdateien: fulltexts/<ebook_id>_filtered.txt
 
 authors: Anja Jungbluth, Sebastian Scherübl, Claus Werner
-date: 2024-10-27
+date: 2024-11-03
 version: 1.0
 """
 
-import pysolr
 import os
 import sys
 import logging
-import json 
+
+from pathlib import Path
 
 from _01_get_ebook_ids import create_solr_instance
 
-logging.basicConfig(format='%(levelname)s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+    force=True
+)
+
+# Aktuelles Arbeitsverzeichnis (suma-tech)
+SCRIPT_DIR = Path.cwd()
+
+# Verzeichnis mit den Volltextdateien
+FULLTEXT_DIR = SCRIPT_DIR / "fulltexts"
+
+# URL der Solr-Cores
+METADATA_CORE = "http://localhost:8983/solr/my1stcore"
+FULLTEXT_CORE = "http://localhost:8983/solr/pg_fulltexts"
 
 
-def query_ebook_id(solr_instanz:pysolr.Solr, ebook_id:str):
-    """Solr-Query nach einer ebook_id.
+def query_ebook_id(solr_instance, ebook_id):
+    """Lädt die Metadaten eines E-Books aus my1stcore.
     
     Parameter:
-    - solr_instanz (pysolr.Solr): Objekt für die abzufragende Solr-Instanz
-    - ebook_id (str): Die ID des E-Books, nach dem gesucht werden soll
+    - solr_instance: Solr-Instanz für my1stcore
+    - ebook_id: E-Book-ID als String
 
     Returns:
-    - doc (json): JSON-Objekt mit den Angaben zu Titel, Autoren, Sprachen, Subjects und Erstelldatum im Project Gutenberg
+    - Solr-Response-Objekt mit den Metadaten des E-Books
     """
 
-    query = f"id:{ebook_id}"
+    return solr_instance.search(
+        f"id:{ebook_id}",
+        fl="id,title,authors,language,subjects,issued",
+        rows=1
+    )
 
-    # TODO: Error-Handling: if response.docs -> denn wenn es keine treffer gibt, ist dies eine leere Liste, somit falsy
 
-    return solr_instanz.search(q=query, fl='id,title,authors,language,subjects,issued', wt="json")
-
-
-def read_fulltext_file(file_path: str) -> str:
-    """Liest den Volltext aus einer Datei ein.
-
+def read_fulltext_file(file_path):
+    """Liest einen gefilterten Volltext ein.
+    
     Parameter:
-    - file_path (str): Pfad zur Volltextdatei
+    - file_path: Pfad zur Volltextdatei
 
     Returns:
-    Inhalt der Volltextdatei als String
+    - Volltext als String, oder leerer String bei Fehlern
     """
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-        
-    except FileNotFoundError:
-        logging.error(f"Datei nicht gefunden: {file_path}")
-        return ""
-    
-    except IOError as e:
-        logging.error(f"Fehler beim Lesen der Datei {file_path}: {e}")
+        with open(file_path, "r", encoding="utf-8") as file:
+            return file.read()
+
+    except (OSError, UnicodeError) as error:
+        logging.error(
+            f"Fehler beim Lesen von {file_path}: {error}"
+        )
         return ""
 
+
+def prepare_document(metadata, fulltext):
+    """Bereitet Metadaten und Volltext für Solr vor.
+    
+    Parameter:
+    - metadata: Metadaten-Dictionary aus einem Solr-Response-Objekt
+    - fulltext: Volltext als String
+
+    Returns:
+    - Dokument-Dictionary für Solr
+    """
+
+    document = dict(metadata)
+
+    # Titelfeld im neuen Core ist nicht mehrwertig
+    title = document.get("title")
+
+    if isinstance(title, list):
+        document["title"] = title[0] if title else ""
+
+    # Mehrwertige Felder sicherstellen
+    for field in ("authors", "language", "subjects"):
+        value = document.get(field)
+
+        if value is None:
+            document[field] = []
+        elif not isinstance(value, list):
+            document[field] = [value]
+
+    # Volltext ergänzen
+    document["fulltext"] = fulltext
+
+    return document
+
+
+def index_ebook(metadata_solr, fulltext_solr, file_path):
+    """Indexiert ein einzelnes E-Book.
+    Die Metadaten werden aus einer Solr-Instanz geladen, der Volltext aus einer Datei gelesen und beides zusammen in eine andere Solr-Instanz übertragen.
+    
+    Parameter:
+    - metadata_solr: Solr-Instanz zum Laden der Metadaten
+    - fulltext_solr: Solr-Instanz zum Indexieren von Metadaten und Volltext
+    - file_path: Pfad zur Volltextdatei
+
+    Returns:
+    - True bei Erfolg, False bei Fehlern
+    """
+
+    filename = os.path.basename(file_path)
+    ebook_id = filename.split("_")[0]
+
+    logging.info(f"Verarbeite E-Book-ID {ebook_id}")
+
+    try:
+        response = query_ebook_id(
+            metadata_solr,
+            ebook_id
+        )
+
+        if not response.docs:
+            logging.warning(
+                f"Keine Metadaten für ID {ebook_id} gefunden."
+            )
+            return False
+
+        metadata = response.docs[0]
+
+        fulltext = read_fulltext_file(file_path)
+
+        if not fulltext.strip():
+            logging.warning(
+                f"Leerer Volltext für ID {ebook_id}."
+            )
+            return False
+
+        document = prepare_document(
+            metadata,
+            fulltext
+        )
+
+        fulltext_solr.add(
+            [document],
+            commit=False
+        )
+
+        logging.info(
+            f"E-Book-ID {ebook_id} zur Indexierung übertragen."
+        )
+
+        return True
+
+    except Exception as error:
+        logging.error(
+            f"Fehler bei E-Book-ID {ebook_id}: {error}"
+        )
+        return False
 
 if __name__ == "__main__":
 
-    # Für Debugging kann ein E-Book-ID beim Skript-Aufruf als Argument übergeben werden, um die Solr-Query zu testen
+    logging.info("Indexierung gestartet.")
+    logging.info(f"Volltextverzeichnis: {FULLTEXT_DIR}")
+    logging.info(f"Verzeichnis vorhanden: {FULLTEXT_DIR.is_dir()}")
+
+    logging.info(f"Verbindung zu Solr-Instanzen für Metadaten und Volltexte.")    
+    metadata_solr = create_solr_instance(METADATA_CORE)
+    fulltext_solr = create_solr_instance(FULLTEXT_CORE)
+
+    # Überprüfung der Kommandozeilenargumente für Debugging
+    if len(sys.argv) > 2:
+        logging.error(
+            "Zu viele Argumente. Korrekter Aufruf: python 05_index_fulltexts.py [ebook_id]"
+        )
+        sys.exit(1)
+
+    # Laden einer E-Book-ID für Debugging via Kommandozeile
     if len(sys.argv) == 2:
-        try:
-            ebook_id = int(sys.argv[1])
-        except (ValueError, IndexError):
-            logging.error("Bitte geben Sie eine gültige E-Book-ID als Argument an.")
-            exit(1)
+        ebook_id = sys.argv[1]
 
-        solr_instance = create_solr_instance("http://localhost:8983/solr/my1stcore")
-        response = query_ebook_id(solr_instance, ebook_id)
-        
-        if not response.docs:
-            logging.error(f"Keine Treffer für E-Book-ID {ebook_id} gefunden.")
-            exit(1)
+        if not ebook_id.isdigit():
+            logging.error("Ungültige E-Book-ID.")
+            sys.exit(1)
 
-        print(f"Response:\n{response.docs[0]}")
+        filenames = [f"{ebook_id}_filtered.txt"]
 
-
-    # Normaler Programmablauf
     else:
+        filenames = sorted(
+            filename
+            for filename in os.listdir(FULLTEXT_DIR)
+            if filename.endswith("_filtered.txt")
+        )
 
-        indexing_counter = 0
-        error_counter = 0
+    success_counter = 0
+    error_counter = 0
 
-        logging.info("Solr-Instanzen erstellen.")
-        my1stcore_instance = create_solr_instance("http://localhost:8983/solr/my1stcore")
-        pg_fulltexts_instance = create_solr_instance("http://localhost:8983/solr/pg_fulltexts")
+    for filename in filenames:
 
-        # flitered.txt-files aus fulltexts laden
-        filelist = [file for file in os.listdir("fulltexts") if file.endswith("filtered.txt")]
+        file_path = os.path.join(
+            FULLTEXT_DIR,
+            filename
+        )
 
-        # Daten zu den Titeln aus my1stcore laden
-        for file in filelist:
-            id = file.split("_")[0]
+        if index_ebook(
+            metadata_solr,
+            fulltext_solr,
+            file_path
+        ):
+            success_counter += 1
+        else:
+            error_counter += 1
 
-            logging.info(f"Lade Daten aus my1stcore zu ID {id}.")
-            response = query_ebook_id(solr_instanz=my1stcore_instance, ebook_id=id)
+    if success_counter > 0:
+        try:
+            fulltext_solr.commit()
+            logging.info("Solr-Commit erfolgreich.")
+        except Exception as error:
+            logging.error(f"Commit fehlgeschlagen: {error}")
+            sys.exit(1)
 
-            if not response.docs:
-                logging.warning(f"Keine Metadaten für E-Book-ID {id} gefunden. Überspringe Datei {file}.")
-                error_counter += 1
-                continue
-
-            logging.info(f"Ergänze Text aus {file}.")
-            response["fulltext"] = read_fulltext_file(file)
-
-            logging.info(f"Lade Daten zu ID {id} in pg_fulltexts.")
-            pg_fulltexts_instance.add([response])
-            # TODO: muss das nicht bei respones.docs erägnzt werden???
-
-            logging.info(f"Indexiere Daten zu ID {id} in pg_fulltexts.")
-            pg_fulltexts_instance.commit()
-
-            logging.info(f"Indexierung zu ID {id} abgeschlossen.")
-            indexing_counter += 1
-
-        logging.info(f"Indexierung abgeschlossen. Insgesamt {indexing_counter} Dokumente indexiert. Fehler bei {error_counter} Dokumenten.")
+    logging.info(
+        f"Indexierung abgeschlossen: "
+        f"{success_counter} übertragen, "
+        f"{error_counter} Fehler."
+    )
