@@ -1,7 +1,6 @@
 #!/bin/python
 
-"""
-Skript zum Entfernen von Headern und Footern aus den Textdateien des Projects Gutenberg. 
+"""Skript zum Entfernen von Headern und Footern aus den Textdateien des Projects Gutenberg. 
 
 Textdateien müssen im Ordner "fulltext" liegen. Die Bearbeiteten Dateien werden nach dem Muster {Ausgangsdatei}_filtered.txt im selben Ordner abgelegt.
 
