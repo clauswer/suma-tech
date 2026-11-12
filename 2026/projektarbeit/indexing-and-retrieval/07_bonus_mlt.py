@@ -68,7 +68,8 @@ def search_similar(document_id):
         "q": f"id:{document_id}",
         "rows": 3,
         "fl": "id,title,authors,score",
-        "wt": "json"
+        "wt": "json",
+        "mlt.maxdfpct": 10,
     }
     response = requests.get(
             f"{SOLR_CORE_URL}/mlt",
@@ -140,11 +141,11 @@ def search(solr, query):
         print("Ihre Suchanfrage liefert keine Treffer!")
         return
 
-    print(
-        f"\n* * * Insgesamt {results.hits} Suchergebnisse "
-        f"gefunden - {len(results)} Treffer werden angezeigt. "
-        f"* * *\n"
-    )
+#    print(
+#        f"\n* * * Insgesamt {results.hits} Suchergebnisse "
+#        f"gefunden - {len(results)} Treffer werden angezeigt. "
+#        f"* * *\n"
+#    )
 
     for i, result in enumerate(results, start=1):
 
@@ -167,15 +168,15 @@ def search(solr, query):
         language = result.get("language") or []
         subjects = result.get("subjects") or []
 
-        print(
-            f"""Suchtreffer # {i} (ID: {result.get('id')}): {title}
-          Autor: {", ".join(authors)}
-          Aufnahmedatum: {issued_text}
-          Sprache: {", ".join(language)}
-          Themengebiete: {", ".join(subjects)}
-          Score-Wert: {result.get("score")}
-"""
-        )
+#        print(
+#            f"""Suchtreffer # {i} (ID: {result.get('id')}): {title}
+#          Autor: {", ".join(authors)}
+#          Aufnahmedatum: {issued_text}
+#          Sprache: {", ".join(language)}
+#          Themengebiete: {", ".join(subjects)}
+#          Score-Wert: {result.get("score")}
+#"""
+#        )
     # ID des besten Suchtreffers ermitteln
     document_id = result.get("id")
 
