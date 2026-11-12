@@ -168,15 +168,15 @@ def search(solr, query):
         language = result.get("language") or []
         subjects = result.get("subjects") or []
 
-#        print(
-#            f"""Suchtreffer # {i} (ID: {result.get('id')}): {title}
-#          Autor: {", ".join(authors)}
-#          Aufnahmedatum: {issued_text}
-#          Sprache: {", ".join(language)}
-#          Themengebiete: {", ".join(subjects)}
-#          Score-Wert: {result.get("score")}
-#"""
-#        )
+        print(
+            f"""Suchtreffer # {i} (ID: {result.get('id')}): {title}
+          Autor: {", ".join(authors)}
+          Aufnahmedatum: {issued_text}
+          Sprache: {", ".join(language)}
+          Themengebiete: {", ".join(subjects)}
+          Score-Wert: {result.get("score")}
+"""
+        )
     # ID des besten Suchtreffers ermitteln
     document_id = result.get("id")
 
