@@ -82,7 +82,7 @@ def search_similar(document_id):
 
     similar_docs = data.get("response", {}).get("docs", [])
 
-    print("\n* * * Ähnliche E-Books * * *\n")
+    print("\n Ähnliche E-Books\n")
 
     if not similar_docs:
         print("Keine ähnlichen E-Books gefunden.")
@@ -97,9 +97,9 @@ def search_similar(document_id):
 
             print(
                 f"""Ähnlicher Treffer #{i} (ID: {doc.get('id')}): {title}
-          Autor: {", ".join(authors)}
-          Score-Wert: {doc.get('score')}
-"""
+                Autor: {", ".join(authors)}
+                Score-Wert: {doc.get('score')}
+                """
             )
 
     print("\n* * * Interesting Terms * * *\n")
@@ -168,15 +168,7 @@ def search(solr, query):
         language = result.get("language") or []
         subjects = result.get("subjects") or []
 
-        print(
-            f"""Suchtreffer # {i} (ID: {result.get('id')}): {title}
-          Autor: {", ".join(authors)}
-          Aufnahmedatum: {issued_text}
-          Sprache: {", ".join(language)}
-          Themengebiete: {", ".join(subjects)}
-          Score-Wert: {result.get("score")}
-"""
-        )
+        print(f"""Suchtreffer # {i} (ID: {result.get('id')}): {title} Autor: {", ".join(authors)} Aufnahmedatum: {issued_text} Sprache: {", ".join(language)} Themengebiete: {", ".join(subjects)} Score-Wert: {result.get("score")}""")
     # ID des besten Suchtreffers ermitteln
     document_id = result.get("id")
 
